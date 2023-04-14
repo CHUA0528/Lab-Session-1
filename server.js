@@ -9,7 +9,9 @@ app.listen(port,()=>{
 })
 
 app.use(express.json());
+
 app.get('/', (req, res) => res.send('Hello World!'));
+
 app.post( '/', (req, res) =>{
     let data=req.body;
     res.send(data.name+req.body.email) }); 
@@ -19,61 +21,47 @@ app.post( '/', (req, res) =>{
 let users = [
     {
         username: "Soo",
-        password:"password"
+        password:bcrypt.hashSync("password",saltRounds)
 
     }
 
 ]
 
 //function to register
-function register( newusername,newpassword)
-{
-    //To do:Check
+function register( newusername,newpassword){
+    //To do:Check if username is already taken
     let found=users.find(element=>element.username==newusername) 
     if (found)
     {
-        let matched=users.find(element=>element.password==newpassword)
-        if(matched)
-        {
-            return "no hashed password"
-        }
-        return "password is hashed"
-  
+        return "Username already taken"
     }
 
     //hash password
-  
     bcrypt.hash(newpassword, saltRounds, function(err, hash) {
-        // Store hash in your password DB.
-        
+        //Store the newusername and hashed password to the users array (database)
         users.push({
             username: newusername,
             password: hash
         })
-    });
-  
-  
+
+    });     //function(err, hash) is used to check if there is any error in hashing
+
   return "Register successfully"
-
-
-
+  //if the username is accepted and there is no error in hashing, return "Register successfully" 
 }
 
 //function to login
 function login(username,password){
-    console.log("someone try to login with",username,password)
-    users.find(element=>{
-        console.log(element)
 
-    })
-
+    //Search for the username in the users array
     let matched=users.find(element=>element.username==username)
     if(matched)
     {
+        //if the username is found, compare the password with the hashed password in the users array
         bcrypt.compare(password, matched.password, function(err, result){console.log(result)})  
-        if(true)
+        if(true)  
         {
-            return "matched"
+            return matched
         }
         else
         {
